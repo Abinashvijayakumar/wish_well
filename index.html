@@ -705,7 +705,8 @@ body {
 
 <script>
 // ── 1. CONFIGURATION & STATE ──
-const UNLOCK_DATE = new Date('2025-06-07T23:57:00').getTime(); 
+// ✅ New bulletproof code (uses slashes instead of hyphens)
+const UNLOCK_DATE = new Date('2025/06/07 23:57:00').getTime();
 const PIN = '0811';
 let pinInput = '';
 let currentPage = 0;
