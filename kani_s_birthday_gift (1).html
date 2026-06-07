@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Happy Birthday, Kani 🌸</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<style>
+/* ── BASIC RESET & VARIABLES ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --rose:#e8527a; --deep:#c0385c; --blush:#f9b8cb; --gold:#f0c060;
+  --ink:#0b0308; --paper:#fdf6f0; --soft:#fff0f4;
+  --glass:rgba(255,255,255,0.08);
+  --page-bg: linear-gradient(160deg, #10030a 0%, #1a0510 100%);
+}
+html {scroll-behavior: smooth; font-size: 16px; overflow-x: hidden;}
+body {
+  font-family: 'Nunito', sans-serif; background: var(--ink); color: #fff;
+  min-height: 100vh; overflow-x: hidden; position: relative;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LOCK SCREEN ── */
+#lock-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(135deg, #0d0208 0%, #1e0510 50%, #0d0208 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 2rem; transition: opacity 0.8s ease;
+}
+.lock-title { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: var(--blush); font-style: italic; margin-bottom: 0.5rem; }
+.lock-sub { font-size: 0.9rem; color: rgba(255,255,255,0.5); margin-bottom: 2rem; }
+#countdown-box { margin-bottom: 2.5rem; }
+#countdown-digits { display: flex; gap: 1rem; justify-content: center; }
+.cd-unit { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+.cd-num {
+  font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(232,82,122,0.3);
+  border-radius: 12px; padding: 0.5rem 1rem; min-width: 70px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+.cd-lbl { font-size: 0.65rem; letter-spacing: 0.15em; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+
+#login-box { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 320px; }
+.login-heart { font-size: 3rem; animation: heartbeat 1.4s ease infinite; margin-bottom: 1rem; }
+@keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+#pin-dots { display: flex; gap: 1rem; margin: 1rem 0; }
+.pin-dot {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: rgba(255,255,255,0.1); border: 1.5px solid rgba(232,82,122,0.5); transition: 0.2s;
+}
+.pin-dot.filled { background: var(--rose); border-color: var(--rose); box-shadow: 0 0 12px var(--rose); }
+#pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; width: 100%; margin-top: 1rem; }
+.pin-key {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; padding: 1.2rem; font-size: 1.5rem; color: #fff;
+  cursor: pointer; transition: 0.1s; -webkit-tap-highlight-color: transparent;
+}
+.pin-key:active { background: var(--rose); transform: scale(0.92); }
+#pin-error { color: #ff6b8a; font-size: 0.9rem; margin-top: 1rem; min-height: 1.5rem; }
+.shake { animation: shake 0.4s ease; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-10px)} 75%{transform:translateX(10px)} }
+
+/* ── MASCOT (GOLDEN RETRIEVER ANIMATIONS) ── */
+#dog {
+  position: fixed; bottom: -100px; left: 20px; z-index: 8000;
+  width: 80px; height: 80px; cursor: pointer;
+  transition: left 0.8s cubic-bezier(0.34,1.56,0.64,1), bottom 0.6s cubic-bezier(0.34,1.56,0.64,1), transform 0.3s;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+  -webkit-tap-highlight-color: transparent; display: none;
+}
+#dog:active { transform: scale(0.9) translateY(10px); }
+#dog-bubble {
+  position: fixed; z-index: 8001; background: #fff; color: var(--ink);
+  border-radius: 16px 16px 16px 4px; padding: 0.7rem 1.2rem;
+  font-size: 0.85rem; font-weight: 700; max-width: 180px; line-height: 1.4;
+  box-shadow: 0 8px 25px rgba(232,82,122,0.3);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+#dog-bubble.show { opacity: 1; }
+
+@keyframes earFlapL { 0%, 100% { transform: rotate(15deg); } 50% { transform: rotate(25deg); } }
+@keyframes earFlapR { 0%, 100% { transform: rotate(-15deg); } 50% { transform: rotate(-25deg); } }
+@keyframes dogBlink { 0%, 96%, 98%, 100% { transform: scaleY(1); } 97%, 99% { transform: scaleY(0.1); } }
+@keyframes dogPant { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.15); } }
+
+#ear-l { transform-origin: 20px 30px; animation: earFlapL 3s ease-in-out infinite; }
+#ear-r { transform-origin: 80px 30px; animation: earFlapR 3s ease-in-out infinite; }
+.eye { transform-origin: center; animation: dogBlink 4s infinite; }
+.tongue { transform-origin: top center; animation: dogPant 0.25s infinite alternate; }
+
+/* ── GLOBAL UI: BACK BUTTON ── */
+#global-back-btn {
+  display: none; position: fixed; top: 20px; left: 20px; z-index: 7000;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+  color: #fff; padding: 0.6rem 1.2rem; border-radius: 20px; backdrop-filter: blur(5px);
+  font-family: 'Nunito', sans-serif; font-weight: 600; font-size: 0.9rem;
+  cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+#global-back-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
+
+/* ── BOOK SYSTEM ── */
+#book-wrapper { display: none; perspective: 1200px; min-height: 100vh; overflow: hidden; background: var(--page-bg); }
+.book-page {
+  position: absolute; inset: 0; width: 100%; height: 100vh;
+  background: var(--page-bg); overflow-y: auto; overflow-x: hidden;
+  transform-origin: left center; transform: rotateY(-90deg); opacity: 0; visibility: hidden;
+  transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.8s, visibility 0.8s;
+  display: flex; flex-direction: column; 
+}
+.book-page.active { transform: rotateY(0deg); opacity: 1; visibility: visible; z-index: 10; }
+.book-page.flipped { transform: rotateY(90deg); opacity: 0; visibility: hidden; z-index: 5; }
+
+/* ── OPTIMIZED INNER PADDING FOR MOBILE (Fixes Empty Space) ── */
+.section-inner {
+  flex: 1; display: flex; flex-direction: column; justify-content: flex-start;
+  padding: 4rem 1.5rem 3rem; max-width: 500px; margin: 0 auto; width: 100%;
+  opacity: 0; transform: translateY(20px); transition: all 0.6s ease 0.3s;
+}
+.book-page.active .section-inner { opacity: 1; transform: translateY(0); }
+
+/* Compact mode toggle button */
+#compact-toggle {
+  position: fixed; top: 16px; right: 16px; z-index: 8002; background: rgba(255,255,255,0.06);
+  color: #fff; border: 1px solid rgba(255,255,255,0.12); padding: 0.5rem 0.8rem; border-radius: 12px;
+  cursor: pointer; font-family: 'Nunito', sans-serif; font-weight:700; font-size:0.9rem; backdrop-filter: blur(6px);
+}
+
+.label { font-size: 0.75rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--rose); margin-bottom: 0.8rem; margin-top: 1.5rem; }
+.display-title {
+  font-family: 'Cormorant Garamond', serif; font-size: clamp(2.5rem, 10vw, 4rem);
+  line-height: 1.1; font-weight: 300; margin-bottom: 1.2rem;
+}
+.display-title em { color: var(--rose); font-style: italic; }
+.body-text { font-size: 0.95rem; line-height: 1.8; color: rgba(255,255,255,0.75); }
+
+/* Buttons */
+.btn-primary, .btn-ghost {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  padding: 1rem 2rem; font-size: 0.95rem; font-family: 'Nunito', sans-serif; font-weight: 700;
+  border-radius: 99px; cursor: pointer; transition: 0.2s; -webkit-tap-highlight-color: transparent; width: 100%;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--rose), var(--deep)); color: #fff; border: none;
+  box-shadow: 0 8px 25px rgba(232,82,122,0.4);
+}
+.btn-primary:active { transform: scale(0.95); box-shadow: 0 4px 15px rgba(232,82,122,0.4); }
+.btn-ghost { background: transparent; color: var(--blush); border: 1.5px solid rgba(232,82,122,0.4); }
+.btn-ghost:active { background: rgba(232,82,122,0.1); }
+.btn-row { display: flex; gap: 1rem; margin-top: 2.5rem; flex-direction: column; }
+
+/* ── PAGE 1: HERO ── */
+#p0 { background: radial-gradient(circle at 80% 20%, rgba(232,82,122,0.2) 0%, transparent 60%), linear-gradient(160deg, #1a0510 0%, #0d0208 100%); }
+#p0 .section-inner { justify-content: center; } /* Keep hero centered */
+.hero-name { font-family: 'Cormorant Garamond', serif; font-size: clamp(3rem, 15vw, 5.5rem); line-height: 1; font-weight: 300; margin-bottom: 1rem; }
+.hero-name span { color: var(--gold); font-style: italic; }
+.hero-tagline { font-size: 1rem; line-height: 1.8; color: rgba(255,255,255,0.6); font-style: italic; margin-bottom: 2rem; border-left: 2px solid var(--rose); padding-left: 1rem; }
+
+/* ── PAGE 2: MEET QUIZ ── */
+.quiz-card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 2rem; margin-top: 2rem; backdrop-filter: blur(10px); }
+.quiz-q { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.6rem; line-height: 1.3; margin-bottom: 2rem; color: #fff; }
+.quiz-options { display: flex; gap: 1rem; }
+.quiz-btn {
+  flex: 1; padding: 1rem; border-radius: 16px; background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 600; cursor: pointer; transition: 0.3s;
+}
+.quiz-btn:active { transform: scale(0.95); }
+.reveal-box {
+  display: none; margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(232,82,122,0.15), rgba(240,192,96,0.05));
+  border: 1px solid var(--rose); border-radius: 16px; text-align: center; animation: fadeIn 0.5s ease;
+}
+.reveal-title { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: var(--gold); margin-bottom: 0.5rem; font-style: italic; }
+
+/* ── PAGE 3: ERUMA WISH ── */
+.eruma-title {
+  font-family: 'Cormorant Garamond', serif; font-size: clamp(2.5rem, 10vw, 3.5rem); font-weight: 300;
+  background: linear-gradient(135deg, var(--blush), var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1.5rem;
+}
+.wish-card {
+  background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 2rem; position: relative; font-size: 0.95rem; line-height: 1.9;
+}
+.wish-card::before { content: '\201C'; position: absolute; top: -1.5rem; left: 1rem; font-family: serif; font-size: 8rem; color: var(--rose); opacity: 0.15; line-height: 1; }
+
+/* ── PAGE 4: FIRST OUTING ── */
+.photos-strip { display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem; }
+.photo-frame {
+  border-radius: 20px; overflow: hidden; background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1); aspect-ratio: 4/3; position: relative;
+}
+.photo-frame img, .cyl-photo img { width: 100%; height: 100%; object-fit: contain; object-position: center; border-radius: inherit; }
+
+/* ── PAGE 5: CYLINDRICAL AUTO-SCROLL ── */
+.cyl-wrapper {
+  position: relative; height: 350px; overflow: hidden; margin-top: 2rem;
+  mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+}
+.cyl-track { display: flex; flex-direction: column; gap: 1rem; animation: cylScroll 20s linear infinite; }
+.cyl-wrapper:active .cyl-track, .cyl-wrapper:hover .cyl-track { animation-play-state: paused; }
+@keyframes cylScroll { 0%{transform:translateY(0)} 100%{transform:translateY(-50%)} }
+.cyl-photo { border-radius: 16px; aspect-ratio: 16/9; background: var(--glass); border: 1px solid rgba(232,82,122,0.2); flex-shrink: 0; position: relative; }
+
+/* ── PAGE 6: SARVAMAYA MOVIE ── */
+.movie-card { background: var(--glass); border-radius: 24px; overflow: hidden; margin-top: 2rem; border: 1px solid rgba(255,255,255,0.1); }
+.movie-poster { 
+  aspect-ratio: 16/9; background: linear-gradient(135deg, #3a0d1e, #1a0510); 
+  display: flex; align-items: center; justify-content: center; font-size: 4rem; position: relative; 
+}
+.movie-poster img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; position: absolute; inset: 0; }
+.delulue-text { position: absolute; top: 15px; right: 20px; font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--blush); font-size: 1.6rem; text-shadow: 0 4px 10px rgba(0,0,0,0.8); z-index: 2; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100%{transform: translateY(0);} 50%{transform: translateY(-5px);} }
+.movie-info { padding: 1.8rem; }
+.song-box { background: rgba(232,82,122,0.1); border: 1px solid rgba(232,82,122,0.2); border-radius: 16px; padding: 1.2rem; display: flex; align-items: center; gap: 1rem; margin-top: 1rem; justify-content: space-between; }
+.audio-btn-small { width: 40px; height: 40px; border-radius: 50%; background: var(--rose); border: none; color: white; font-size: 1rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0;}
+.audio-btn-small:active { transform: scale(0.9); }
+
+/* ── PAGE 7: BUS TRAVEL & STARRY NIGHT ── */
+#p6, #p9, #p12 { background: linear-gradient(to bottom, #050b14, #110416, #000); position: relative; }
+#p6 .section-inner, #p9 .section-inner, #p12 .section-inner { justify-content: center; } /* Keep these specific visual pages centered */
+.stars { position: absolute; inset: 0; background-image: radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)), radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)), radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)); background-repeat: repeat; background-size: 200px 200px; animation: twinkle 4s infinite; opacity: 0.6; pointer-events: none;}
+@keyframes twinkle { 0%,100%{opacity:0.4;} 50%{opacity:0.8;} }
+.bus-scene { position: relative; height: 180px; margin-bottom: 2rem; border-radius: 24px; background: linear-gradient(180deg, transparent, #0a0a20); border: 1px solid rgba(255,255,255,0.1); overflow: hidden; }
+.bus-road { position: absolute; bottom: 0; width: 100%; height: 40px; background: #111; border-top: 2px solid #222; }
+.bus-road::after { content:''; position:absolute; top:50%; width: 200%; height: 3px; background: repeating-linear-gradient(90deg, var(--gold) 0 40px, transparent 40px 80px); animation: roadMove 1s linear infinite; left: -100%; }
+@keyframes roadMove { to {left: 0} }
+.bus-emoji { position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%); font-size: 4rem; animation: busRock 0.8s ease-in-out infinite alternate; }
+@keyframes busRock { from {transform: translateX(-50%) rotate(-1.5deg) translateY(0);} to {transform: translateX(-50%) rotate(1.5deg) translateY(-3px);} }
+
+/* ── PAGE 8: MIXTAPE & LYRICS (MERGED) ── */
+.mixtape-card { background: rgba(20,5,15,0.8); border: 1px solid var(--rose); border-radius: 30px; padding: 2.5rem 2rem; margin-top: 1rem; text-align: center; box-shadow: 0 10px 30px rgba(232,82,122,0.2); }
+.record-spin { width: 110px; height: 110px; border-radius: 50%; background: repeating-radial-gradient(#111 0 2px, #222 3px 5px); margin: 0 auto 1.5rem; border: 4px solid var(--gold); display: flex; align-items: center; justify-content: center; animation: spin 4s linear infinite; animation-play-state: paused; box-shadow: 0 4px 15px rgba(0,0,0,0.5);}
+.record-spin.playing { animation-play-state: running; }
+.record-center { width: 35px; height: 35px; background: var(--rose); border-radius: 50%; border: 3px solid #fff; }
+@keyframes spin { 100% {transform: rotate(360deg);} }
+.lyrics-box { background: rgba(255,255,255,0.03); border-radius: 16px; padding: 1.5rem; text-align: center; margin-top: 1.5rem; font-style: italic; border: 1px dashed rgba(255,255,255,0.2); }
+
+/* ── PAGE 9: INTERACTIVE FLIP CARDS ── */
+.flip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
+.flip-card { background-color: transparent; width: 100%; height: 110px; perspective: 1000px; }
+.flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; cursor: pointer; }
+.flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+.flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 16px; padding: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.flip-card-front { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: var(--gold); font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-style: italic; flex-direction: column; gap: 0.5rem; }
+.flip-card-back { background: linear-gradient(135deg, var(--rose), var(--deep)); border: 1px solid var(--rose); color: white; transform: rotateY(180deg); font-size: 0.85rem; font-weight: 600; line-height: 1.4; }
+.flip-icon { font-size: 1.5rem; }
+
+/* ── PAGE 10 & 11: MY WORDS & QUIZ ── */
+.letter-card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 2.5rem 1.8rem; position: relative; margin-top: 1rem; }
+.letter-para { font-size: 0.95rem; line-height: 1.9; color: rgba(255,255,255,0.8); margin-bottom: 1.5rem; text-align: justify; }
+.qa-card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 1.8rem; margin-bottom: 1.5rem; }
+.qa-question { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; line-height: 1.4; margin-bottom: 1.5rem; font-style: italic; }
+.qa-type-yesno { display: flex; gap: 1rem; }
+.yn-btn {
+  flex: 1; padding: 1rem; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2);
+  color: #fff; font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.3s; font-family: 'Nunito', sans-serif;
+}
+.yn-btn.yes.picked { background: linear-gradient(135deg, #22c55e, #16a34a); border-color: #22c55e; }
+.yn-btn.no.picked { background: linear-gradient(135deg, var(--rose), var(--deep)); border-color: var(--rose); }
+.qa-type-text input {
+  width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px;
+  padding: 1rem; color: #fff; font-size: 1rem; font-family: 'Nunito', sans-serif; outline: none; transition: 0.3s;
+}
+.qa-type-text input:focus { border-color: var(--gold); }
+.mc-options { display: flex; flex-direction: column; gap: 0.8rem; }
+.mc-btn { padding: 1rem; border-radius: 12px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 0.95rem; cursor: pointer; transition: 0.3s; }
+.mc-btn.picked { background: rgba(232,82,122,0.2); border-color: var(--rose); }
+
+/* ── PAGE 12 & 13: FINAL WORDS & HEY DELU ── */
+.love-confession {
+  font-family: 'Cormorant Garamond', serif; font-size: clamp(3rem, 12vw, 4.5rem); font-style: italic;
+  text-align: center; margin: 3rem 0; background: linear-gradient(135deg, var(--blush), var(--rose), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: glow 2.5s ease-in-out infinite alternate;
+}
+.delu-text {
+  font-family: 'Cormorant Garamond', serif; font-size: clamp(3.5rem, 12vw, 5rem); font-style: italic; font-weight: 300;
+  text-align: center; margin-bottom: 2rem; color: var(--gold); line-height: 1;
+}
+
+@keyframes glow { from {filter: drop-shadow(0 0 10px rgba(232,82,122,0.4))} to {filter: drop-shadow(0 0 25px rgba(232,82,122,0.9))} }
+
+/* ── PAGE 14: ASK ME ── */
+#ask-input {
+  width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px;
+  padding: 1.2rem; color: #fff; font-size: 1rem; font-family: 'Nunito', sans-serif; outline: none; resize: none; min-height: 100px;
+}
+#ask-input:focus { border-color: var(--rose); }
+
+/* Progress & Navigation */
+#nav-dots { position: fixed; right: 15px; top: 50%; transform: translateY(-50%); z-index: 7000; display: flex; flex-direction: column; gap: 10px; }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: 0.3s; }
+.nav-dot.active { background: var(--rose); transform: scale(1.8); box-shadow: 0 0 10px var(--rose); }
+.page-number { position: absolute; bottom: 1.5rem; right: 1.5rem; font-size: 0.75rem; letter-spacing: 0.2em; color: rgba(255,255,255,0.3); }
+
+/* Confetti System */
+@keyframes fall { to {transform: translateY(100vh) rotate(720deg); opacity: 0;} }
+.confetti { position: fixed; z-index: 9999; pointer-events: none; font-size: 1.5rem; top: -50px; }
+</style>
+</head>
+<body>
+
+<div id="lock-screen">
+  <div id="countdown-section">
+    <p class="lock-title">Something beautiful is waiting…</p>
+    <p class="lock-sub">Opens for you on June 8th 🌸</p>
+    <div id="countdown-box">
+      <div id="countdown-digits">
+        <div class="cd-unit"><div class="cd-num" id="cd-d">00</div><div class="cd-lbl">days</div></div>
+        <div class="cd-unit"><div class="cd-num" id="cd-h">00</div><div class="cd-lbl">hrs</div></div>
+        <div class="cd-unit"><div class="cd-num" id="cd-m">00</div><div class="cd-lbl">min</div></div>
+        <div class="cd-unit"><div class="cd-num" id="cd-s">00</div><div class="cd-lbl">sec</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="login-box">
+    <div class="login-heart">🌸</div>
+    <p class="lock-title" style="font-size:1.8rem">Enter the secret, Kani…</p>
+    <p style="font-size:0.8rem; color:rgba(255,255,255,0.5); font-style:italic; margin-bottom:1rem;">Hint: 4 digits. Your birth date. My birth date.</p>
+    <div id="pin-dots">
+      <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+    </div>
+    <div id="pin-pad">
+      <button class="pin-key" onclick="pinPress('1')">1</button><button class="pin-key" onclick="pinPress('2')">2</button><button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button><button class="pin-key" onclick="pinPress('5')">5</button><button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button><button class="pin-key" onclick="pinPress('8')">8</button><button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key" onclick="pinClear()" style="color:var(--rose)">⌫</button><button class="pin-key" onclick="pinPress('0')">0</button><button class="pin-key" onclick="pinPress('')">·</button>
+    </div>
+    <p id="pin-error"></p>
+  </div>
+</div>
+
+<button id="global-back-btn" onclick="goBack()">← Back</button>
+
+<div id="dog" onclick="dogSpeak()">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <ellipse id="ear-l" cx="20" cy="55" rx="12" ry="25" fill="#D2934D" />
+    <ellipse id="ear-r" cx="80" cy="55" rx="12" ry="25" fill="#D2934D" />
+    <ellipse cx="50" cy="50" rx="35" ry="32" fill="#F2C272"/>
+    <ellipse cx="50" cy="62" rx="18" ry="14" fill="#FDF1D6"/>
+    <circle class="eye" cx="35" cy="42" r="5" fill="#3E2723"/>
+    <circle class="eye" cx="65" cy="42" r="5" fill="#3E2723"/>
+    <circle class="eye" cx="36" cy="40" r="1.5" fill="white"/>
+    <circle class="eye" cx="66" cy="40" r="1.5" fill="white"/>
+    <ellipse cx="50" cy="58" rx="7" ry="5" fill="#3E2723"/>
+    <path d="M 43 65 Q 50 72 57 65" fill="none" stroke="#3E2723" stroke-width="2.5" stroke-linecap="round"/>
+    <path class="tongue" d="M 47 67 Q 50 75 53 67 Z" fill="#F48FB1"/>
+  </svg>
+</div>
+<div id="dog-bubble">Woof! Read this carefully... 🐾</div>
+
+<div id="book-wrapper">
+  <div id="nav-dots"></div>
+
+  <div class="book-page active" id="p0">
+    <div class="section-inner">
+      <div class="label" style="color:var(--gold)">June 8, 2005 ✦ Turn 20</div>
+      <div class="hero-name">Happy<br/><span>Birthday</span><br/>Kani Molei</div>
+      <p class="hero-tagline">
+        To a girl who showed me what feeling is, <br/>
+        who made me cry for another person, <br/>
+        who changed me like Zayn, <br/>
+        who controls me, <br/>
+        a girl I am always thinking about.
+      </p>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="goPage(1)">✨ Let's revisit our journey</button>
+      </div>
+    </div>
+    <div class="page-number">01 / 14</div>
+  </div>
+
+  <div class="book-page" id="p1">
+    <div class="section-inner">
+      <p class="label">✦ The Beginning</p>
+      <h2 class="display-title">A small<br/><em>question</em></h2>
+      <div class="quiz-card">
+        <p class="quiz-q">Do you remember the day we first met?</p>
+        <div class="quiz-options">
+          <button class="quiz-btn" onclick="meetQuiz('yes')">Yes, I do 🥹</button>
+          <button class="quiz-btn" onclick="meetQuiz('no')">Not exactly 😅</button>
+        </div>
+        <div id="meet-reveal" class="reveal-box"></div>
+      </div>
+      <div class="btn-row"><button class="btn-ghost" onclick="goPage(2)">Continue →</button></div>
+    </div>
+    <div class="page-number">02 / 14</div>
+  </div>
+
+  <div class="book-page" id="p2">
+    <div class="section-inner">
+      <p class="label">✦ The Wish</p>
+      <h2 class="eruma-title">Happy Birthday,<br/>Eruma 🐮✨</h2>
+      <div class="wish-card">
+        <p class="body-text">
+          Twenty years of you existing in this world — and somehow, I feel like the lucky one.
+          <br><br>
+          You enter quietly and leave loudly — in the heart. May this birthday bring you the joy you've given others without knowing it. May this year be the chapter where everything you've waited for starts arriving.
+          <br><br>
+          You deserve the whole universe today, Kani. 🌸
+        </p>
+        <p style="margin-top: 1.5rem; font-family: 'Cormorant Garamond'; font-size: 1.2rem; color: var(--gold); font-style: italic;">— Abinash (Paradesi) 🖤</p>
+      </div>
+      <div class="btn-row"><button class="btn-primary" onclick="launchConfetti(); goPage(3)">🎉 Pop Confetti & Next</button></div>
+    </div>
+    <div class="page-number">03 / 14</div>
+  </div>
+
+  <div class="book-page" id="p3">
+    <div class="section-inner">
+      <p class="label">✦ Chapter 1</p>
+      <h2 class="display-title">Our first<br/><em>outing</em></h2>
+      <p class="body-text">The beginning of a story neither of us planned — but both of us lived.</p>
+      <div class="photos-strip">
+        <div class="photo-frame">
+          <img src="outing1.jpg" alt="Our first outing">
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+          <div class="photo-frame" style="aspect-ratio:1;"><img src="outing2.jpg" alt="Our first outing"></div>
+          <div class="photo-frame" style="aspect-ratio:1;"><img src="outing3.jpg" alt="Our first outing"></div>
+          <div class="photo-frame" style="aspect-ratio:1;"><img src="outing4.jpg" alt="Our first outing"></div>
+          <div class="photo-frame" style="aspect-ratio:1;"><img src="outing5.jpg" alt="Our first outing"></div>
+        </div>
+      </div>
+      <div class="btn-row"><button class="btn-ghost" onclick="goPage(4)">More memories →</button></div>
+    </div>
+    <div class="page-number">04 / 14</div>
+  </div>
+
+  <div class="book-page" id="p4">
+    <div class="section-inner">
+      <p class="label">✦ The Archive</p>
+      <h2 class="display-title">Every<br/><em>moment</em></h2>
+      <p class="body-text">Scrolls automatically. Tap and hold to pause and admire. ✨</p>
+      <div class="cyl-wrapper">
+        <div class="cyl-track">
+          <div class="cyl-photo"><img src="memory1.jpg" alt="Beautiful memory"></div>
+          <div class="cyl-photo"><img src="memory2.jpg" alt="Beautiful memory"></div>
+          <div class="cyl-photo"><img src="memory3.jpg" alt="Beautiful memory"></div>
+          <div class="cyl-photo"><img src="memory4.jpg" alt="Beautiful memory"></div>
+          <div class="cyl-photo"><img src="memory5.jpg" alt="Beautiful memory"></div>
+          <div class="cyl-photo"><img src="memory6.jpg" alt="Beautiful memory"></div>
+          <div class="cyl-photo"><img src="memory7.jpg" alt="Beautiful memory"></div>
+          <div class="cyl-photo"><img src="memory8.jpg" alt="Beautiful memory"></div>
+          <div class="cyl-photo"><img src="memory9.jpg" alt="Beautiful memory"></div>
+          <div class="cyl-photo"><img src="memory10.jpg" alt="Beautiful memory"></div>
+          <div class="cyl-photo"><img src="memory11.jpg" alt="Beautiful memory"></div>
+          <div class="cyl-photo"><img src="memory12.jpg" alt="Beautiful memory"></div>
+          <div class="cyl-photo"><img src="memory1.jpg" alt="Beautiful memory"></div>
+          <div class="cyl-photo"><img src="memory2.jpg" alt="Beautiful memory"></div>
+          <div class="cyl-photo"><img src="memory3.jpg" alt="Beautiful memory"></div>
+        </div>
+      </div>
+      <div class="btn-row"><button class="btn-ghost" onclick="goPage(5)">Next →</button></div>
+    </div>
+    <div class="page-number">05 / 14</div>
+  </div>
+
+  <div class="book-page" id="p5">
+    <div class="section-inner">
+      <p class="label">✦ The Film</p>
+      <h2 class="display-title">The film that<br/><em>connected us</em></h2>
+      <div class="movie-card">
+        <div class="movie-poster">
+          <div class="delulue-text">Delulue ✨</div>
+          <div style="font-size: 3rem; position: absolute; z-index: 1;">🎬</div>
+          <img src="sarvamaya.jpg" alt="Sarvamaya Poster" > 
+        </div>
+        <div class="movie-info">
+          <h3 style="font-family:'Cormorant Garamond'; font-size:1.8rem; color:var(--gold);">Sarvamaya</h3>
+          <p class="body-text" style="font-size:0.85rem; margin-bottom:0.5rem;">Some films don't just entertain — they find you at the right moment and say everything you couldn't. This one did that for us.</p>
+          
+          <audio id="movie-audio" loop>
+            <source src="sarvam maya.mp3" type="audio/mpeg">
+          </audio>
+
+          <div class="song-box">
+            <div>
+              <p style="font-weight:700; font-size:0.9rem;">Sarvamaya Theme</p>
+              <p style="font-size:0.75rem; color:rgba(255,255,255,0.6);">Tap play to listen</p>
+            </div>
+            <button class="audio-btn-small" id="movie-btn" onclick="toggleAudio('movie-audio', 'movie-btn', null)">▶</button>
+          </div>
+          <p style="text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.3); margin-top:0.5rem;">*(Upload 'sarvamaya.mp3' to your folder)*</p>
+        </div>
+      </div>
+      <div class="btn-row"><button class="btn-ghost" onclick="goPage(6)">Next →</button></div>
+    </div>
+    <div class="page-number">06 / 14</div>
+  </div>
+
+  <div class="book-page" id="p6">
+    <div class="stars"></div>
+    <div class="section-inner" style="z-index: 2;">
+      <p class="label">✦ Best Place</p>
+      <h2 class="display-title">The place I<br/><em>enjoyed you</em></h2>
+      <div class="bus-scene">
+        <div class="bus-road"></div>
+        <div class="bus-emoji">🚌</div>
+      </div>
+      <div class="wish-card" style="background:rgba(0,0,0,0.4); backdrop-filter:blur(5px);">
+        <p class="body-text">
+          Not a fancy restaurant. Not a movie hall. Just a bus. Moving roads, passing streetlights, the hum of an engine — and you next to me, talking about everything and nothing at the same time.<br><br>
+          That, Kani — was the best place I've ever been.
+        </p>
+      </div>
+      <div class="btn-row"><button class="btn-ghost" onclick="goPage(7)">Next →</button></div>
+    </div>
+    <div class="page-number">07 / 14</div>
+  </div>
+
+  <div class="book-page" id="p7">
+    <div class="section-inner">
+      <p class="label">✦ The Song</p>
+      <h2 class="display-title">The song I<br/><em>dedicate</em></h2>
+      
+      <div class="mixtape-card">
+        <div class="record-spin" id="record">
+          <div class="record-center"></div>
+        </div>
+        <h3 style="font-family:'Cormorant Garamond'; color:var(--gold); font-size:1.8rem;">Kadhaipomma</h3>
+        <p style="font-size:0.8rem; color:rgba(255,255,255,0.6);">A melody just for us.</p>
+        
+        <audio id="bg-music" loop>
+          <source src="kadhaipooma.mp3" type="audio/mpeg">
+        </audio>
+
+        <div style="display:flex; justify-content:center; gap:1rem; margin-top:1.5rem;">
+          <button class="audio-btn-small" style="width:50px; height:50px; font-size:1.2rem;" id="mixtape-btn" onclick="toggleAudio('bg-music', 'mixtape-btn', 'record')">▶</button>
+        </div>
+      </div>
+      
+      <div class="lyrics-box">
+        <p class="body-text" style="color:#fff; font-size:0.85rem;">
+          "Some songs find you before you understand them. This one found me — and I thought of you."<br><br>
+          Every note, every pause, every word carries something I never knew how to say out loud.
+        </p>
+      </div>
+      
+      <p style="text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.3); margin-top:1rem;">*(Upload 'kadhaipomma.mp3' to your folder)*</p>
+      
+      <div class="btn-row"><button class="btn-ghost" onclick="goPage(8)">Little Details →</button></div>
+    </div>
+    <div class="page-number">08 / 14</div>
+  </div>
+
+  <div class="book-page" id="p8">
+    <div class="section-inner">
+      <p class="label">✦ Interactive</p>
+      <h2 class="display-title">Things I<br/><em>notice</em></h2>
+      <p class="body-text">Tap the cards to see what I see. ✨</p>
+      
+      <div class="flip-grid">
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><span class="flip-icon">🌻</span>Your Smile</div>
+            <div class="flip-card-back">It genuinely lights up my darkest days.</div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><span class="flip-icon">🤨</span>Stubbornness</div>
+            <div class="flip-card-back">It drives me crazy, but it's part of why I love you.</div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><span class="flip-icon">🥺</span>Caring Heart</div>
+            <div class="flip-card-back">You try to hide it sometimes, but I see it.</div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><span class="flip-icon">✨</span>Your Voice</div>
+            <div class="flip-card-back">It is my favorite sound in the whole world.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row mt2" style="margin-top:2rem;"><button class="btn-ghost" onclick="goPage(9)">Read my letter →</button></div>
+    </div>
+    <div class="page-number">09 / 14</div>
+  </div>
+
+  <div class="book-page" id="p9">
+    <div class="stars"></div>
+    <div class="section-inner" style="z-index: 2;">
+      <p class="label">✦ Confession</p>
+      <h2 class="display-title">Words I<br/><em>never said</em></h2>
+      <div class="letter-card" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(8px);">
+        <p class="letter-para">
+          You were the most unexpected person I met when I wasn't looking for love, and the one I lost when I finally was. We may have met for destiny to make our lives comfortable, teach lessons, laugh together, fight, and change each other.
+        </p>
+        <p class="letter-para">
+          I was thinking why do men cry for women, until I experienced it—they are not weak, their pain and memories make them cry.
+        </p>
+        <p class="letter-para">
+          We may not talk like our old days, you know this too, not because the bond is weakened, but time and distance separated us. Every day I remember our moments. Those are the moments I enjoyed myself the most in my entire life.
+        </p>
+        <p class="letter-para">
+          I don't know if we'll talk until the end or if we'll never be able to meet, but one thing I will never be able to move on from and never be able to forget is you.
+        </p>
+        <p class="letter-para" style="color:var(--blush); font-weight:700;">Thank you for all of it, Kani...</p>
+      </div>
+      <div class="btn-row"><button class="btn-ghost" onclick="goPage(10)">Just a few questions →</button></div>
+    </div>
+    <div class="page-number">10 / 14</div>
+  </div>
+
+  <div class="book-page" id="p10">
+    <div class="section-inner">
+      <p class="label">✦ Interactive</p>
+      <h2 class="display-title">Just between<br/><em>us</em></h2>
+      <p class="body-text" style="margin-bottom:2rem;">Be honest. No one else is watching. Your answers will be saved for me. 🌸</p>
+
+      <div class="qa-card" id="q1">
+        <p class="qa-question">1. Did you genuinely enjoy the moments with me?</p>
+        <div class="qa-type-yesno"><button class="yn-btn yes" onclick="pickYN(this)">Yes 💚</button><button class="yn-btn no" onclick="pickYN(this)">No 😢</button></div>
+      </div>
+      <div class="qa-card" id="q2">
+        <p class="qa-question">2. If I proposed to you 4 years ago, would you have accepted me?</p>
+        <div class="qa-type-yesno"><button class="yn-btn yes" onclick="pickYN(this)">Yes 🥹</button><button class="yn-btn no" onclick="pickYN(this)">No 😅</button></div>
+      </div>
+      <div class="qa-card" id="q3">
+        <p class="qa-question">3. What is your best memory with me?</p>
+        <div class="qa-type-text"><input type="text" placeholder="Type here..."/></div>
+      </div>
+      <div class="qa-card" id="q4">
+        <p class="qa-question">4. Which version of me do you remember the most?</p>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="pickMC(this)">The funny, nonsense one 😄</button>
+          <button class="mc-btn" onclick="pickMC(this)">The quietly caring one 🤍</button>
+          <button class="mc-btn" onclick="pickMC(this)">The dramatic one 😂</button>
+        </div>
+      </div>
+      <div class="qa-card" id="q5">
+        <p class="qa-question">5. On a scale of never to always, how often do you think about the good times?</p>
+        <div class="mc-options">
+          <button class="mc-btn" onclick="pickMC(this)">Never</button>
+          <button class="mc-btn" onclick="pickMC(this)">Sometimes</button>
+          <button class="mc-btn" onclick="pickMC(this)">Always. Every single day.</button>
+        </div>
+      </div>
+
+      <div class="btn-row"><button class="btn-primary" onclick="goPage(11)">Save Answers & Next →</button></div>
+    </div>
+    <div class="page-number">11 / 14</div>
+  </div>
+
+  <div class="book-page" id="p11">
+    <div class="section-inner">
+      <p class="label">✦ The End</p>
+      <h2 class="display-title">My final<br/><em>words</em></h2>
+      <div class="letter-card" style="text-align: center;">
+        <p class="letter-para">
+          In my life I didn't wish or feel for anything, the only unforgettable wish is you. Maybe in the next life I will meet you first and make you mine before others.
+        </p>
+        <p class="letter-para">
+          I am really jealous of that guy who gets you without any prayer. And these are my last words, not as a friend:
+        </p>
+        <div class="love-confession">"I love you."</div>
+        <p style="font-family:'Cormorant Garamond'; color:var(--gold); font-size:1.2rem; font-style:italic;">— Forever, Abinash</p>
+      </div>
+      <div class="btn-row"><button class="btn-ghost" onclick="goPage(12)">Next →</button></div>
+    </div>
+    <div class="page-number">12 / 14</div>
+  </div>
+
+  <div class="book-page" id="p12">
+    <div class="stars"></div>
+    <div class="section-inner" style="text-align: center; z-index: 2;">
+      <h2 class="delu-text">Hey Delu,<br>Happy Birthday.</h2>
+      <div class="letter-card" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(8px);">
+        <p class="letter-para" style="font-size: 1.1rem; line-height: 2;">
+          I am not able to wish you like others using Insta, WhatsApp, and calls because we silently speaking 🤫. <br><br>
+          This is my way of wishing. <br><br>
+          Also, I am not able to celebrate the birthday with you. Sorry. 🤍
+        </p>
+      </div>
+      <div class="btn-row"><button class="btn-ghost" onclick="goPage(13)">One last thing →</button></div>
+    </div>
+    <div class="page-number">13 / 14</div>
+  </div>
+
+  <div class="book-page" id="p13">
+    <div class="section-inner">
+      <p class="label">✦ Your Turn</p>
+      <h2 class="display-title">Ask me<br/><em>anything</em></h2>
+      <p class="body-text" style="margin-bottom:1rem;">You've read my heart. Now ask me any question. When you click Submit, your quiz answers and your question will be sent directly to me.</p>
+      
+      <textarea id="ask-input" placeholder="Type your question for Abinash here..."></textarea>
+      
+      <div class="btn-row mt2" style="margin-top:2rem;">
+        <button class="btn-primary" onclick="submitEverything()">💌 Submit Answers via WhatsApp</button>
+      </div>
+      
+      <p style="font-size:0.75rem; color:rgba(255,255,255,0.3); text-align:center; margin-top:3rem;">
+        Made with love by Paradesi.<br>June 8, 2005 → Infinity
+      </p>
+    </div>
+    <div class="page-number">14 / 14</div>
+  </div>
+
+</div>
+
+<script>
+// ── 1. CONFIGURATION & STATE ──
+const UNLOCK_DATE = new Date('2025-06-07T23:57:00').getTime(); 
+const PIN = '0811';
+let pinInput = '';
+let currentPage = 0;
+const totalPages = 14;
+let answersData = {}; 
+
+// ── 2. COUNTDOWN & LOGIN LOGIC ──
+function checkTime() {
+  const now = new Date().getTime();
+  const diff = UNLOCK_DATE - now;
+
+  if (diff <= 0) {
+    document.getElementById('countdown-section').style.display = 'none';
+    document.getElementById('login-box').style.display = 'flex';
+  } else {
+    document.getElementById('countdown-section').style.display = 'block';
+    document.getElementById('login-box').style.display = 'none';
+    
+    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((diff % (1000 * 60)) / 1000);
+    document.getElementById('cd-d').textContent = String(d).padStart(2, '0');
+    document.getElementById('cd-h').textContent = String(h).padStart(2, '0');
+    document.getElementById('cd-m').textContent = String(m).padStart(2, '0');
+    document.getElementById('cd-s').textContent = String(s).padStart(2, '0');
+  }
+}
+setInterval(checkTime, 1000);
+checkTime();
+
+function pinPress(num) {
+  if (pinInput.length >= 4) return;
+  pinInput += num;
+  updateDots();
+  if (pinInput.length === 4) setTimeout(checkPin, 200);
+}
+function pinClear() {
+  pinInput = pinInput.slice(0, -1);
+  updateDots();
+}
+function updateDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('d' + i).classList.toggle('filled', i < pinInput.length);
+  }
+}
+function checkPin() {
+  if (pinInput === PIN) {
+    document.getElementById('lock-screen').style.opacity = '0';
+    setTimeout(() => {
+      document.getElementById('lock-screen').style.display = 'none';
+      document.getElementById('book-wrapper').style.display = 'block';
+      setTimeout(() => document.getElementById('dog').style.display = 'block', 1000);
+      initBook();
+    }, 800);
+  } else {
+    pinInput = '';
+    updateDots();
+    const err = document.getElementById('pin-error');
+    err.textContent = 'Incorrect PIN, Kani 🌸';
+    err.classList.remove('shake'); void err.offsetWidth; err.classList.add('shake');
+  }
+}
+
+// ── 3. BOOK FLIP & NAVIGATION LOGIC (WITH SCROLL FIX) ──
+function initBook() {
+  const dots = document.getElementById('nav-dots');
+  for (let i = 0; i < totalPages; i++) {
+    const d = document.createElement('div');
+    d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goPage(i);
+    dots.appendChild(d);
+  }
+  moveDogRandom();
+  setInterval(moveDogRandom, 7000);
+}
+
+function goPage(targetIndex) {
+  if (targetIndex === currentPage) return;
+  const pages = document.querySelectorAll('.book-page');
+  
+  if (targetIndex > currentPage) {
+    pages[currentPage].classList.remove('active');
+    pages[currentPage].classList.add('flipped');
+    pages[targetIndex].classList.remove('flipped');
+    pages[targetIndex].classList.add('active');
+  } else {
+    pages[currentPage].classList.remove('active');
+    pages[targetIndex].classList.remove('flipped');
+    pages[targetIndex].classList.add('active');
+  }
+  
+  currentPage = targetIndex;
+  document.querySelectorAll('.nav-dot').forEach((d, i) => d.classList.toggle('active', i === currentPage));
+  
+  // Toggle visibility of the back button
+  document.getElementById('global-back-btn').style.display = currentPage > 0 ? 'block' : 'none';
+  
+  pauseAllAudio();
+  setTimeout(() => { dogSpeak(); }, 1000);
+
+  // 🔴 SCROLL TO TOP FIX: A tiny delay ensures the browser processes the new page visually before jumping to the top.
+  setTimeout(() => {
+    pages[targetIndex].scrollTop = 0; // Scrolls the actual div container up
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // As a fallback, tells the main browser window to jump to top
+  }, 10);
+}
+
+function goBack() {
+  if (currentPage > 0) goPage(currentPage - 1);
+}
+
+// ── 4. MASCOT LOGIC (GOLDEN RETRIEVER) ──
+const dogMessages = [
+  "Take your time reading... 🐾",
+  "He spent so long making this 🥹",
+  "Are you smiling? 😊",
+  "Woof! Keep going! 🐕",
+  "This part made him emotional...",
+  "I love you, Kani! 💖",
+  "Scroll down to see more ✨"
+];
+let lastScroll = 0;
+
+function moveDogRandom() {
+  const dog = document.getElementById('dog');
+  const maxX = window.innerWidth - 100;
+  const x = Math.max(10, Math.random() * maxX);
+  dog.style.left = x + 'px';
+  dog.style.bottom = (20 + Math.random() * 30) + 'px'; 
+}
+
+function dogSpeak() {
+  const b = document.getElementById('dog-bubble');
+  const dog = document.getElementById('dog');
+  b.textContent = dogMessages[Math.floor(Math.random() * dogMessages.length)];
+  
+  const dogRect = dog.getBoundingClientRect();
+  b.style.left = Math.min(dogRect.left, window.innerWidth - 200) + 'px';
+  b.style.bottom = (window.innerHeight - dogRect.top + 10) + 'px';
+  
+  b.classList.add('show');
+  
+  setTimeout(() => {
+    b.classList.remove('show');
+  }, 3500);
+}
+
+document.querySelectorAll('.book-page').forEach(page => {
+  page.addEventListener('scroll', () => {
+    if (Date.now() - lastScroll > 5000) {
+      if (Math.random() > 0.5) dogSpeak();
+      lastScroll = Date.now();
+    }
+  });
+});
+
+// ── 5. QUIZ LOGIC (UPDATED FIRST MEET LOGIC) ──
+function meetQuiz(ans) {
+  const box = document.getElementById('meet-reveal');
+  box.style.display = 'block';
+  box.style.animation = 'fadeIn 0.5s ease';
+  
+  if (ans === 'yes') {
+    box.innerHTML = `
+      <div class="reveal-title" style="color:#fff; font-size:1.1rem; margin-bottom:1rem;">Tell me the date then... 🤔</div>
+      <input type="text" id="meet-guess" placeholder="e.g. Jan 1" style="padding:0.8rem; border-radius:12px; border:none; outline:none; text-align:center; width:80%; margin-bottom:1rem; font-family:'Nunito', sans-serif;">
+      <br>
+      <button class="btn-primary" style="padding:0.6rem 1.2rem; display:inline-block; width:auto;" onclick="checkMeetDate()">Check Date</button>
+    `;
+  } else {
+    box.innerHTML = `
+      <div class="reveal-title">Kuttachi… 🐮</div>
+      <p style="font-size:0.9rem; color:#fff; line-height:1.6;">It was January 3rd.<br>Line-3 TATA Electronics, Underfill Line.<br>How could you forget?</p>
+    `;
+  }
+}
+
+function checkMeetDate() {
+  const guess = document.getElementById('meet-guess').value.toLowerCase();
+  const box = document.getElementById('meet-reveal');
+  
+  if (guess.includes('jan') && guess.includes('3')) {
+    box.innerHTML = `
+      <div class="reveal-title">Good 🥹</div>
+      <p style="font-size:0.9rem; color:#fff; line-height:1.6;">January 3rd.<br>Line-3 TATA Electronics, Underfill Line.<br>The day everything changed.</p>
+    `;
+  } else {
+    box.innerHTML = `
+      <div class="reveal-title">Kuttachi… 🐮</div>
+      <p style="font-size:0.9rem; color:#fff; line-height:1.6;">Wrong! It was January 3rd.<br>Line-3 TATA Electronics, Underfill Line.<br>How could you forget?</p>
+    `;
+  }
+}
+
+function pickYN(btn) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.yn-btn').forEach(b => b.classList.remove('picked'));
+  btn.classList.add('picked');
+  const questionId = parent.parentElement.id;
+  answersData[questionId] = btn.textContent.replace(/[^\w\s]/gi, '').trim();
+}
+
+function pickMC(btn) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.mc-btn').forEach(b => b.classList.remove('picked'));
+  btn.classList.add('picked');
+  const questionId = parent.parentElement.id;
+  answersData[questionId] = btn.textContent.trim();
+}
+
+// ── 6. AUDIO PLAYER LOGIC ──
+function toggleAudio(audioId, btnId, recordId) {
+  const audioToPlay = document.getElementById(audioId);
+  const btn = document.getElementById(btnId);
+  const record = recordId ? document.getElementById(recordId) : null;
+  
+  if (audioToPlay.paused) {
+    pauseAllAudio(); 
+    audioToPlay.play().catch(e => alert("Please upload the .mp3 file to GitHub first!"));
+    if(record) record.classList.add('playing');
+    btn.textContent = '⏸';
+  } else {
+    audioToPlay.pause();
+    if(record) record.classList.remove('playing');
+    btn.textContent = '▶';
+  }
+}
+
+function pauseAllAudio() {
+  const audios = document.querySelectorAll('audio');
+  audios.forEach(a => a.pause());
+  
+  document.getElementById('movie-btn').textContent = '▶';
+  document.getElementById('mixtape-btn').textContent = '▶';
+  
+  const record = document.getElementById('record');
+  if(record) record.classList.remove('playing');
+}
+
+// ── 7. CONFETTI LOGIC ──
+function launchConfetti() {
+  const emojis = ['🌸','✨','💖','⭐','🌺','💫'];
+  for(let i=0; i<40; i++){
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.animation = `fall ${Math.random()*2+2}s linear forwards`;
+    el.style.animationDelay = Math.random() * 1 + 's';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 4000);
+  }
+}
+
+// ── 8. SUBMISSION LOGIC (WHATSAPP & EMAIL) ──
+function submitEverything() {
+  const q3Text = document.querySelector('#q3 input').value || "No text entered";
+  const finalQuestion = document.getElementById('ask-input').value || "No final question asked";
+  
+  let formattedMessage = `🌸 *Happy Birthday Kani - Answers* 🌸\n\n`;
+  formattedMessage += `1. Enjoyed moments: ${answersData['q1'] || 'Skipped'}\n`;
+  formattedMessage += `2. Accept proposal: ${answersData['q2'] || 'Skipped'}\n`;
+  formattedMessage += `3. Best memory: ${q3Text}\n`;
+  formattedMessage += `4. Version of me: ${answersData['q4'] || 'Skipped'}\n`;
+  formattedMessage += `5. Think about good times: ${answersData['q5'] || 'Skipped'}\n\n`;
+  formattedMessage += `💬 *Kani's Question for Abinash:*\n"${finalQuestion}"`;
+
+  const phone = "918525007851";
+  const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(formattedMessage)}`;
+  
+  launchConfetti();
+  setTimeout(() => {
+    window.open(whatsappUrl, '_blank');
+  }, 1000);
+}
+</script>
+</body>
+</html>
