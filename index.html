@@ -705,8 +705,9 @@ body {
 
 <script>
 // ── 1. CONFIGURATION & STATE ──
-// ✅ Timer set for today (uses slashes for broad compatibility)
-const UNLOCK_DATE = new Date('2026/06/07 23:56:00').getTime();
+// ✅ Timer set for today using local numeric Date constructor (year, monthIndex(0-based), day, hour, minute, second)
+// This avoids string parsing differences across browsers and timezones.
+const UNLOCK_DATE = new Date(2026, 5, 7, 23, 56, 0).getTime();
 const PIN = '0811';
 let pinInput = '';
 let currentPage = 0;
